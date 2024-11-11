@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include 'connect.php';
+include ('../auth/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
@@ -12,7 +12,7 @@ function handleLogout() {
     // Unset all session variables and destroy the session
     $_SESSION = array();
     session_destroy();
-    header("Location: index.php"); // Redirect to login page
+    header("Location: .\auth\index.php"); // Redirect to login page
     exit();
 }
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="./homepagecss.css">
+    <link rel="stylesheet" href=".\homepagecss.css">
 </head>
 <body>
     <div class="container">
@@ -88,8 +88,8 @@ if (isset($_SESSION['email'])) {
                             </g>
                         </g>
                     </svg>Dashboard</a></li>
-                <li><a href="task.php"><img width="20" height="20" src="https://img.icons8.com/material-outlined/18/student-center.png" alt="student-center"/>Courses</a></li>
-                <li><a href="./expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png" alt="task"/>Expenses</a></li>
+                <li><a href="../task/task.php"><img width="20" height="20" src="https://img.icons8.com/material-outlined/18/student-center.png" alt="student-center"/>Courses</a></li>
+                <li><a href="../expenses/expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png" alt="task"/>Expenses</a></li>
                 <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/material-outlined/18/compass.png" alt="compass"/>Schedules</a></li>
                 <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/fluency-systems-regular/20/user-group-woman-woman.png" alt="user-group-woman-woman"/>Classmates</a></li>
                 <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/ios/20/settings.png" alt="settings"/>Settings</a></li>

@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include 'connect.php';
+include ('../auth/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
@@ -67,7 +67,7 @@ if (isset($_SESSION['email'])) {
                 <div class="menus">
                     <ul class="menu">
                         <li>
-                            <a href="./homepage.php">
+                            <a href="../homepage/homepage.php">
                                 <!--?xml version="1.0" encoding="UTF-8"?-->
                                 <svg id="Activity" width="18px" height="18px" viewBox="0 0 24 24" version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -87,10 +87,10 @@ if (isset($_SESSION['email'])) {
                                         </g>
                                     </g>
                                 </svg>Dashboard</a></li>
-                        <li><a href="task.php"><img width="20" height="20"
+                        <li><a href="../task/task.php"><img width="20" height="20"
                                     src="https://img.icons8.com/material-outlined/18/student-center.png"
                                     alt="student-center" />Courses</a></li>
-                        <li><a href="expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png"
+                        <li><a href="../expenses/expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png"
                                     alt="task" />Expenses</a></li>
                         <li><a href="#"><img width="20" height="20"
                                     src="https://img.icons8.com/material-outlined/18/compass.png"
@@ -118,34 +118,27 @@ if (isset($_SESSION['email'])) {
                     <h1>Hi, Alysia</h1>
                 </header>
                 <!-- Assignments Section -->
-                <section class="assignments" id="assignments">
-                    <h2>Today's Task</h2>
-                    <div class="assignment-card" id="assignment-card" >
-                        <div class="taskHead">
-                        <p id="asd">Typography Test</p>
-                        <p id="timeStamp">1:00-5:00</p>
-                        </div>
-                        <span class="status" style="background-color: #10B981;">Completed</span>
-                        <img width="20" height="20" src="https://img.icons8.com/fluency-systems-regular/20/filled-trash.png" alt="filled-trash"/ class='delete' aria-label="Delete">
+                <div class="card">
+            <!-- Icon -->
+                <div class="icon">◻</div>
+
+        <!-- Content -->
+                    <div class="content">
+                        <div class="title">Typography test</div>
+                        <div class="time">Today, 10:30 AM</div>
                     </div>
-                    <div class="assignment-card"  id="assignment-card">
-                    <div class="taskHead">
-                        <p>Typography Test</p>
-                        <p id="timeStamp">1:00-5:00</p>
-                        </div>
-                        <span class="status" style="background-color: #10B981;">Completed</span>
-                        <img width="20" height="20" src="https://img.icons8.com/fluency-systems-regular/20/filled-trash.png" alt="filled-trash"/ class='delete'>
-                    </div>
-                    <div class="assignment-card"  id="assignment-card">
-                    <div class="taskHead">
-                        <p>Typography Test</p>
-                        <p id="timeStamp">1:00-5:00</p>
-                        </div>
-                        <span class="status">Incomplete</span>
-                        <img width="20" height="20" src="https://img.icons8.com/fluency-systems-regular/20/filled-trash.png" alt="filled-trash"/ class='delete'>
-                    </div>
-                </section>
-            </div>
+
+                            <!-- Grade -->
+                            <div class="grade">
+                                <div class="score">192/200</div>
+                                <div class="label">Final Grade</div>
+                            </div>
+
+        <!-- Status Button -->
+                       <div class="status">Completed</div>
+    </div>
+    </div>
+            
 
             <!----------Add task panel------>
             <div class="side-panel">
