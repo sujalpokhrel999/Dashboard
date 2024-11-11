@@ -28,8 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="./expenses.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -54,24 +57,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
                             }
                         }
                         ?>
+                        Sujal Pokhrel
                     </h2>
                 </div>
 
                 <div class="menus">
                     <ul class="menu">
-                        <li><a href="../homepage/homepage.php"><img src="icons/dashboard.svg" alt="Dashboard"></a></li>
-                        <li><a href="../task/task.php"><img src="icons/student-center.svg" alt="Courses"> </a></li>
-                        <li><a href="../expenses/expenses.html"><img src="icons/task.svg" alt="Expenses"></a></li>
-                        <li><a href="#"><img src="icons/compass.svg" alt="Schedules"></a></li>
-                        <li><a href="#"><img src="icons/user-group.svg" alt="Classmates"></a></li>
-                        <li><a href="#"><img src="icons/settings.svg" alt="Settings"></a></li>
+                        <li><a href="../homepage/homepage.php"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                        <li><a href="../task/task.php"><i class="fa-solid fa-book"></i> Courses</a></li>
+                        <li><a href="../expenses/expenses.html"><i class="fa-solid fa-wallet"></i> Expenses</a></li>
+                        <li><a href="#"><i class="fa-solid fa-calendar"></i> Schedules</a></li>
+
+                        <li><a href="#"><i class="fa-solid fa-cog"></i> Settings</a></li>
                     </ul>
                 </div>
+                
             </div>
 
             <form method="post" action="">
                 <button type="submit" name="logout" class="logout">
-                    <img src="icons/exit.svg" alt="Logout" /> Log Out
+                    <i class="fa-solid fa-right-from-bracket"></i> Log Out
                 </button>
             </form>
         </nav>
@@ -137,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
                                 <p class="amount negative">-35.200</p>
                             </div>
                         </div>
-                    </div>    
+                    </div>
                 </div>
             </div>
 
@@ -203,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
                     </div>
                     <h3>Save more money</h3>
                     <p>eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim.</p>
-                    <button id="myBtn">VIEW TIPS</button>
+                    <button id="myBtn" class="view">View Tips</button>
                 </div>
             </div>
         </div>
@@ -214,92 +219,126 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
         <div class="modal-content">
             <h2>Edit view</h2>
             <div class="info">
-              By switching from private to shared.
+                By switching from private to shared.
             </div>
-            
+
             <label class="label" for="amount">Amount</label>
-            <input type="text" id="amount"  placeholder="Add amount">
-            
+            <input type="text" id="amount" placeholder="Add amount">
+
             <label class="label">Category</label>
             <div class="options">
-              <label>
-                <input type="radio" name="category" value="Grocery" checked>
-                <div class="option">
-                  <span class="icon">🛒</span>
-                  <span>Grocery</span>
-                </div>
-              </label>
-              <label>
-                <input type="radio" name="category" value="Transportation">
-                <div class="option">
-                  <span class="icon">🚗</span>
-                  <span>Transportation</span>
-                </div>
-              </label>
-              <label>
-                <input type="radio" name="category" value="Housing">
-                <div class="option">
-                  <span class="icon">🏡</span>
-                  <span>Housing</span>
-                </div>
-              </label>
-              <label>
-                <input type="radio" name="category" value="Food and Drinks">
-                <div class="option">
-                  <span class="icon">🍔</span>
-                  <span>Food and Drinks</span>
-                </div>
-              </label>
-              <label>
-                  <input type="radio" name="category" value="Entertainment">
-                  <div class="option">
-                    <span class="icon">🍿</span>
-                    <span>Entertainment</span>
-                  </div>
+                <label>
+                    <input type="radio" name="category" value="Grocery" checked>
+                    <div class="option">
+                        <span class="icon">🛒</span>
+                        <span>Grocery</span>
+                    </div>
+                </label>
+                <label>
+                    <input type="radio" name="category" value="Transportation">
+                    <div class="option">
+                        <span class="icon">🚗</span>
+                        <span>Transportation</span>
+                    </div>
+                </label>
+                <label>
+                    <input type="radio" name="category" value="Housing">
+                    <div class="option">
+                        <span class="icon">🏡</span>
+                        <span>Housing</span>
+                    </div>
+                </label>
+                <label>
+                    <input type="radio" name="category" value="Food and Drinks">
+                    <div class="option">
+                        <span class="icon">🍔</span>
+                        <span>Food and Drinks</span>
+                    </div>
+                </label>
+                <label>
+                    <input type="radio" name="category" value="Entertainment">
+                    <div class="option">
+                        <span class="icon">🍿</span>
+                        <span>Entertainment</span>
+                    </div>
                 </label>
             </div>
-          
+
             <label class="label" for="date">Date</label>
             <input type="date" id="date">
-          
+
             <label class="label" for="note">Note</label>
             <textarea id="note" rows="3" placeholder="Add additional notes..."></textarea>
-          
+
             <div class="buttons">
-              <button class="cancel">Cancel</button>
-              <button class="save">Save</button>
+                <button class="cancel" onclick="closeModal()">Cancel</button>
+            <button class="save" onclick="saveData()">Save</button>
             </div>
         </div>
-      </div>
-      <!--  -->
+    </div>
+    <!--  -->
 
 
     <script>
         // Get the modal
-var modal = document.getElementById("myModal");
+        var modal = document.getElementById("myModal");
 
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  modal.style.display = "block";
-}
+        // When the user clicks on the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
 
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
 
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Close modal
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    // Save and console log data
+    function saveData() {
+        // Get values from inputs
+        const amount = document.getElementById('amount').value;
+        const date = document.getElementById('date').value;
+        const note = document.getElementById('note').value;
+
+        // Get selected category
+        const category = document.querySelector('input[name="category"]:checked').value;
+
+        // Log the data
+        console.log({
+            amount: amount,
+            category: category,
+            date: date,
+            note: note
+        });
+
+        // Close the modal after saving
+        closeModal();
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
     </script>
 
     <script src="./task.js"></script>
@@ -313,43 +352,43 @@ window.onclick = function(event) {
             type: 'line',
             data: {
                 labels: [
-            'Feb 1', 'Feb 7', 'Feb 15', 'Feb 22', 'Mar 1', 'Mar 8', 'Mar 15', 'Mar 22', 'Apr 1', 'Apr 8', 'Apr 15',
-        ],
-        datasets: [{
-            label: 'Price',
-            data: [150, 120, 200, 45, 145, 100, 145, 45, 200, 120, 150],
-            borderColor: '#111',
-            fill: false,
-            tension: 0.4, // Smoothing effect
-        }]
+                    'Feb 1', 'Feb 7', 'Feb 15', 'Feb 22', 'Mar 1', 'Mar 8', 'Mar 15', 'Mar 22', 'Apr 1', 'Apr 8', 'Apr 15',
+                ],
+                datasets: [{
+                    label: 'Price',
+                    data: [150, 120, 200, 45, 145, 100, 145, 45, 200, 120, 150],
+                    borderColor: '#111',
+                    fill: false,
+                    tension: 0.4, // Smoothing effect
+                }]
             },
             options: {
-                respo:true,
+                respo: true,
                 maintainAspectRatio: false,
                 scales: {
-            y: {
-                beginAtZero: true,
-                min: 0,
-                max: 250,
-                title: {
-                    display: false,
-                    text: 'Price',
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 250,
+                        title: {
+                            display: false,
+                            text: 'Price',
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: false,
+                            text: 'Date',
+                        },
+                    }
                 },
-            },
-            x: {
-                title: {
-                    display: false,
-                    text: 'Date',
-                },
-            }
-        },
                 plugins: {
                     legend: {
                         display: false
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(tooltipItem) {
+                            label: function (tooltipItem) {
                                 return '$' + tooltipItem.raw;
                             }
                         }

@@ -71,7 +71,7 @@ function handleRegistration($dbConnection) {
             // Close the connection to the user database
             $userDbConnection->close();
 
-            header("Location: .\auth\index.php"); // Redirect to login page
+            header("Location: ..\auth\index.php"); // Redirect to login page
             exit();
         } else {
             $errors['db'] = "Error: " . $dbConnection->error;
@@ -125,7 +125,7 @@ function handleLogin($dbConnection) {
             $userDataResult = $userDbConnection->query($checkUserDataQuery);
             if ($userDataResult->num_rows > 0) {
                 // User's database is ready, redirect them to their personalized homepage
-                header("location: .\homepage\homepage.php");
+                header("location: ..\homepage\homepage.php");
                 exit();
             } else {
                 $errors['db'] = "User-specific database not set up properly!";
