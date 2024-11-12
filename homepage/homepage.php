@@ -1,166 +1,144 @@
 <?php
-// Include your database connection file
-include ('../auth/connect.php');
+// Include database connection file
+include('../auth/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
 
-/**
- * Function to handle user logout.
- */
-function handleLogout() {
-    // Unset all session variables and destroy the session
-    $_SESSION = array();
-    session_destroy();
-    header("Location: .\auth\index.php"); // Redirect to login page
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['email'])) {
+    header("Location: ../auth/login.php");
     exit();
 }
 
-// Handle logout when the form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
-    handleLogout();
+// Handle task addition
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_task'])) {
+    $task = $_POST['task'];
+    $user_id = $_SESSION['user_id']; // Assuming the user ID is stored in the session
+
+    // Using prepared statements to securely insert data
+    $stmt = $conn->prepare("INSERT INTO tasks (user_id, task) VALUES (?, ?)");
+    $stmt->bind_param("is", $user_id, $task);
+    if ($stmt->execute()) {
+        echo "Task added successfully!";
+    } else {
+        echo "Error adding task: " . $stmt->error;
+    }
+    $stmt->close();
 }
+
+// Fetch user data
+$email = $_SESSION['email'];
+$email = mysqli_real_escape_string($conn, $email);
+$query = mysqli_query($conn, "SELECT username, id FROM users WHERE email='$email'");
+
+if ($query && mysqli_num_rows($query) > 0) {
+    $row = mysqli_fetch_assoc($query);
+    $username = $row['username'];
+    $user_id = $row['id'];
+} else {
+    echo "No user found";
+    exit();
+}
+
+// Fetch tasks for the logged-in user
+$tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
+$tasks_result = mysqli_query($conn, $tasks_query);
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href=".\homepagecss.css">
+    <link rel="stylesheet" href="./homepagecss.css">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="div" style="    flex-basis: 80%;
-            display: flex;
-            flex-direction: column;
-            gap: 35px;">
-        
-            <div class="profile">
-                <img src="pp.jpg" alt="Profile Picture">
-                <h2><?php 
-if (isset($_SESSION['email'])) {
-    $email = $_SESSION['email'];
+            <div class="profile-section" style="flex-basis: 80%; display: flex; flex-direction: column; gap: 35px;">
+                <div class="profile">
+                    <img src="pp.jpg" alt="Profile Picture">
+                    <h2><?php echo htmlspecialchars($username); ?></h2>
+                </div>
 
-    // Escape the email to prevent SQL injection
-    $email = mysqli_real_escape_string($conn, $email);
+                <div class="menus">
+                    <ul class="menu">
+                        <li><a href="./homepage.php"><img src="https://img.icons8.com/material-outlined/18/home.png" alt="dashboard"/> Dashboard</a></li>
+                        <li><a href="../task/task.php"><img src="https://img.icons8.com/material-outlined/18/student-center.png" alt="courses"/> Courses</a></li>
+                        <li><a href="../expenses/expenses.html"><img src="https://img.icons8.com/ios-glyphs/20/task.png" alt="expenses"/> Expenses</a></li>
+                        <li><a href="#"><img src="https://img.icons8.com/material-outlined/18/compass.png" alt="schedules"/> Schedules</a></li>
+                        <li><a href="#"><img src="https://img.icons8.com/fluency-systems-regular/20/user-group-woman-woman.png" alt="classmates"/> Classmates</a></li>
+                        <li><a href="#"><img src="https://img.icons8.com/ios/20/settings.png" alt="settings"/> Settings</a></li>
+                    </ul>
+                </div>
 
-    // Execute the query
-    $query = mysqli_query($conn, "SELECT users.* FROM `users` WHERE users.email='$email'");
-
-    // Check if the query executed successfully
-    if ($query) {
-        // Check if any rows were returned
-        if (mysqli_num_rows($query) > 0) {
-            while ($row = mysqli_fetch_array($query)) {
-                echo $row['name']; // Output the user's name
-            }
-        } else {
-            echo "No user found with this email."; // No user found
-        }
-    } else {
-        echo "Error in query execution: " . mysqli_error($conn); // Query error
-    }
-} else {
-    echo "Session email is not set."; // Session email not set
-}
-?>
-
-            </h2>
+                <!-- Logout Form -->
+                <form method="post" action="logout.php">
+                    <button type="submit" name="logout" class="logout"><img src="https://img.icons8.com/windows/20/exit.png" alt="logout"/> Log Out</button>
+                </form>
             </div>
-            <div class="menus">
-            <ul class="menu">
-                <li>
-                    <a href="./homepage.php"><!--?xml version="1.0" encoding="UTF-8"?-->
-                    <svg id="Activity" width="18px" height="18px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>Iconly/Light/Activity</title>
-                        <g id="Iconly/Light/Activity" stroke="none" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
-                            <g id="Activity" transform="translate(2.000000, 1.500000)" stroke="#000000" stroke-width="1.5">
-                                <polyline id="Path_33966" points="5.24485128 13.2814646 8.23798631 9.39130439 11.652174 12.0732266 14.5812358 8.29290622"></polyline>
-                                <circle id="Ellipse_741" cx="17.9954234" cy="2.70022885" r="1.92219681"></circle>
-                                <path d="M12.9244852,1.62013731 L5.6567506,1.62013731 C2.64530894,1.62013731 0.778032041,3.75286043 0.778032041,6.76430209 L0.778032041,14.846682 C0.778032041,17.8581237 2.60869567,19.9816935 5.6567506,19.9816935 L14.2608696,19.9816935 C17.2723113,19.9816935 19.1395882,17.8581237 19.1395882,14.846682 L19.1395882,7.80778036" id="Path"></path>
-                            </g>
-                        </g>
-                    </svg>Dashboard</a></li>
-                <li><a href="../task/task.php"><img width="20" height="20" src="https://img.icons8.com/material-outlined/18/student-center.png" alt="student-center"/>Courses</a></li>
-                <li><a href="../expenses/expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png" alt="task"/>Expenses</a></li>
-                <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/material-outlined/18/compass.png" alt="compass"/>Schedules</a></li>
-                <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/fluency-systems-regular/20/user-group-woman-woman.png" alt="user-group-woman-woman"/>Classmates</a></li>
-                <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/ios/20/settings.png" alt="settings"/>Settings</a></li>
-            </ul>
-            </div>
-            </div>
-
-   
-            <form method="post" action="">
-            <button type="submit" name="logout" class="logout"><img width="20" height="20" src="https://img.icons8.com/windows/20/exit.png" alt="exit"/ style="margin-right: 10px;">Log Out</button>
-        </form>
         </nav>
+
         <!-- Main Content -->
         <div class="main-content">
             <header>
-                <h1>Hi, Alysia</h1>
-                <button class="new-course-btn" id="newTaskBtn">Add New Course</button>
+                <h1>Hi, <?php echo htmlspecialchars($username); ?></h1>
+                <button class="new-course-btn" id="newTaskBtn">Add New Task</button>
             </header>
-        <!-- Model Section-->
-            <!-- Modal content -->
+
             <!-- Stats Section -->
             <section class="stats">
                 <div class="stat-card">
-                    <h3 id="TotalTaskCounter">21.2K</h3>
-                    <p>Total Task</p>
+                    <h3 id="TotalTaskCounter"><?php echo mysqli_num_rows($tasks_result); ?></h3>
+                    <p>Total Tasks</p>
                 </div>
                 <div class="stat-card">
-                    <h3 id="CompletedTaskCounter" >196/200</h3>
-                    <p>Completed Task</p>
+                    <h3 id="CompletedTaskCounter">196/200</h3>
+                    <p>Completed Tasks</p>
                 </div>
                 <div class="stat-card">
                     <h3 id="TotalExpensesCounter">12</h3>
                     <p>Total Expenses</p>
                 </div>
             </section>
-            <!-- Courses Section -->
-            <!-- <section class="courses">
-                <h2>My Courses</h2>
-                <div class="course-card purple">
-                    <h3>Mobile Design</h3>
-                    <p>Progress</p>
-                </div>
-                <div class="course-card blue">
-                    <h3>UX Design Foundations</h3>
-                    <p>Progress</p>
-                </div>
-                <div class="course-card peach">
-                    <h3>UI Components</h3>
-                    <p>Progress</p>
-                </div>
-            </section> -->
 
-            <!-- Assignments Section -->
+            <!-- Add Task Form -->
+            <section class="new-task-form" style="display: none;">
+                <h2>Add New Task</h2>
+                <form method="post" action="">
+                    <input type="text" name="task" required placeholder="Enter Task">
+                    <button type="submit" name="add_task">Add Task</button>
+                </form>
+            </section>
+
+            <!-- Tasks Section -->
             <section class="assignments">
-                <h2>Today's Task</h2>
-                <div class="assignment-card">
-                    <p>Typography Test</p>
-                    <span class="status" style="background-color: #10B981;">Completed</span>
-                </div>
-                <div class="assignment-card">
-                    <p>Inclusive Design Test</p>
-                    <span class="status" style="background-color: #10B981;">Completed</span>
-                </div>
-                <div class="assignment-card">
-                    <p>Typography Test</p>
-                    <span class="status">Incomplete</span>
-                </div>
+                <h2>Today's Tasks</h2>
+                <?php if (mysqli_num_rows($tasks_result) > 0): ?>
+                    <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
+                        <div class="assignment-card">
+                            <p><?php echo htmlspecialchars($task['task']); ?></p>
+                            <span class="status"><?php echo $task['created_at']; ?></span>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No tasks yet. Add a task!</p>
+                <?php endif; ?>
             </section>
         </div>
     </div>
 
     <script src="./homepagescript.js"></script>
+    <script>
+        // Toggle the new task form
+        document.getElementById('newTaskBtn').addEventListener('click', function() {
+            const form = document.querySelector('.new-task-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
 </body>
 </html>
