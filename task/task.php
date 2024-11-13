@@ -1,222 +1,253 @@
 <?php
-// Include your database connection file
-include ('../includes/connect.php');
+// Include database connection file
+include('../includes/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
 
-/**
- * Function to handle user logout.
- */
-function handleLogout() {
-    // Unset all session variables and destroy the session
-    $_SESSION = array();
-    session_destroy();
-    header("Location: ../auth/login.php"); // Redirect to login page
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['email'])) {
+    header("Location: ../auth/login.php");
     exit();
 }
 
-// Handle logout when the form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
-    handleLogout();
-}
-?>
+// Handle task addition
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_task'])) {
+    $task = $_POST['task'];
+    $user_id = $_SESSION['user_id']; // Assuming the user ID is stored in the session
 
+    // Using prepared statements to securely insert data
+    $stmt = $conn->prepare("INSERT INTO tasks (user_id, task) VALUES (?, ?)");
+    $stmt->bind_param("is", $user_id, $task);
+    if ($stmt->execute()) {
+        // Redirect to the same page to avoid form resubmission
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        // Handle error (optional)
+        echo "Error adding task: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Fetch user data
+$email = $_SESSION['email'];
+$email = mysqli_real_escape_string($conn, $email);
+$query = mysqli_query($conn, "SELECT username, id FROM users WHERE email='$email'");
+
+if ($query && mysqli_num_rows($query) > 0) {
+    $row = mysqli_fetch_assoc($query);
+    $username = $row['username'];
+    $user_id = $row['id'];
+} else {
+    echo "No user found";
+    exit();
+}
+
+// Fetch tasks for the logged-in user
+$tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
+$tasks_result = mysqli_query($conn, $tasks_query);
+?>
 
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap"
-        rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Project Management UI</title>
     <link rel="stylesheet" href="./task.css">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="div" style="    flex-basis: 80%;
-            display: flex;
-            flex-direction: column;
-            gap: 35px;">
+    <div class="sidebar">
 
-                <div class="profile">
-                    <img src="pp.jpg" alt="Profile Picture">
-                    <h2><?php echo htmlspecialchars($username); ?>
-                    </h2>
-                </div>
-                <div class="menus">
-                    <ul class="menu">
-                        <li>
-                            <a href="../homepage/homepage.php">
-                                <!--?xml version="1.0" encoding="UTF-8"?-->
-                                <svg id="Activity" width="18px" height="18px" viewBox="0 0 24 24" version="1.1"
-                                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <title>Iconly/Light/Activity</title>
-                                    <g id="Iconly/Light/Activity" stroke="none" stroke-width="1.5" fill="none"
-                                        fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
-                                        <g id="Activity" transform="translate(2.000000, 1.500000)" stroke="#000000"
-                                            stroke-width="1.5">
-                                            <polyline id="Path_33966"
-                                                points="5.24485128 13.2814646 8.23798631 9.39130439 11.652174 12.0732266 14.5812358 8.29290622">
-                                            </polyline>
-                                            <circle id="Ellipse_741" cx="17.9954234" cy="2.70022885" r="1.92219681">
-                                            </circle>
-                                            <path
-                                                d="M12.9244852,1.62013731 L5.6567506,1.62013731 C2.64530894,1.62013731 0.778032041,3.75286043 0.778032041,6.76430209 L0.778032041,14.846682 C0.778032041,17.8581237 2.60869567,19.9816935 5.6567506,19.9816935 L14.2608696,19.9816935 C17.2723113,19.9816935 19.1395882,17.8581237 19.1395882,14.846682 L19.1395882,7.80778036"
-                                                id="Path"></path>
-                                        </g>
-                                    </g>
-                                </svg>Dashboard</a></li>
-                        <li><a href="../task/task.php"><img width="20" height="20"
-                                    src="https://img.icons8.com/material-outlined/18/student-center.png"
-                                    alt="student-center" />Courses</a></li>
-                        <li><a href="../expenses/expenses.html"><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/20/task.png"
-                                    alt="task" />Expenses</a></li>
-                        <li><a href="#"><img width="20" height="20"
-                                    src="https://img.icons8.com/material-outlined/18/compass.png"
-                                    alt="compass" />Schedules</a></li>
-                        <li><a href="#"><img width="20" height="20"
-                                    src="https://img.icons8.com/fluency-systems-regular/20/user-group-woman-woman.png"
-                                    alt="user-group-woman-woman" />Classmates</a></li>
-                        <li><a href="#"><img width="20" height="20" src="https://img.icons8.com/ios/20/settings.png"
-                                    alt="settings" />Settings</a></li>
-                    </ul>
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="logo.png" alt="">
+                </span>
+                <div class="text logo-text">
+                    <span class="name">EffortEase</span>
                 </div>
             </div>
-
-
-            <form method="post" action="">
-                <button type="submit" name="logout" class="logout"><img width="20" height="20"
-                        src="https://img.icons8.com/windows/20/exit.png" alt="exit" / style="margin-right: 10px;">Log
-                    Out</button>
-            </form>
-        </nav>
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="middle">
-                <header>
-                    <h1>Hi, Alysia</h1>
-                </header>
-                <!-- Assignments Section -->
-                <div class="card">
-            <!-- Icon -->
-                <div class="icon">◻</div>
-
-        <!-- Content -->
-                    <div class="content">
-                        <div class="title">Typography test</div>
-                        <div class="time">Today, 10:30 AM</div>
-                    </div>
-
-                            <!-- Grade -->
-                            <div class="grade">
-                                <div class="score">192/200</div>
-                                <div class="label">Final Grade</div>
-                            </div>
-
-        <!-- Status Button -->
-                       <div class="status">Completed</div>
-    </div>
-    </div>
-            
-
-            <!----------Add task panel------>
-            <div class="side-panel">
-                <div class="upper">
-                    <div class="header">
-                        <span class="badge">PRO</span>
-                        <button class="icon-btn">&#x21bb;</button>
-                    </div>
-
-                    <div class="taskDetails">
-                        <h1>Mobile Design</h1>
-                        <p class="description">This course will teach you how to do just that — design great mobile user
-                            interfaces.</p>
-                        <div class="skills">
-                            <span style="color: #777;
-                    font-size: 12px;
-                    ">Priority's Available</span>
-                            <div class="priorityAvailable">
-                                <span class="skill ">High</span>
-                                <span class="skill ">Medium</span>
-                                <span class="skill">Low </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="PandD" style="margin-top: -15px;">
-                        <div class="participants">
-                            <span style="color: #777;
-                    font-size: 12px;
-                    ">Add new task</span>
-                            <div class="avatars">
-                                <input type="text" placeholder="" id="inputField">
-                            </div>
-
-                        </div>
-                        <div class="details">
-                            <div class="detail">
-                                <span class="icon"><img width="18" height="18"
-                                        src="https://img.icons8.com/fluency-systems-regular/18/bullish.png"
-                                        alt="bullish" /></span>
-                                <div class="detailtype">
-                                    <div class="detailsdisc">
-                                    <span>Priority</span>
-                                    <p id="level">Level</p>
-                                    </div>
-                                    <select id="priorityDropdown" onchange="updatePriority()">
-                                    <option  value="Level">None</option>
-                                    <option  value="High" >High</option>
-                                    <option  value="Medium" >Medium</option>
-                                    <option  value="Low">Low</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="detail">
-                                <span class="icon"><img width="18" height="18"
-                                        src="https://img.icons8.com/fluency-systems-regular/24/calendar--v1.png"
-                                        alt="calendar--v1" /></span>
-                                <div class="detailType">
-                                    <span>2 weeks</span>
-                                    <p>Duration</p>
-                                </div>
-                            </div>
-                            <div class="detail">
-                                <span class="icon"><img width="18" height="18"
-                                        src="https://img.icons8.com/ios/24/clock.png" alt="clock" /></span>
-                                <div class="detailType">
-                                    <span>12:00–13:00</span>
-                                    <p>Time</p>
-                                </div>
-                            </div>
-                            <div class="detail">
-                                <span class="icon"><img width="18" height="18"
-                                        src="https://img.icons8.com/ios/22/wallet--v1.png" alt="wallet--v1" /></span>
-                                <div class="detailType">
-                                    <span>$360</span>
-                                    <p>Price</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="actions">
-                    <button class="join-btn" id="addBtn">Add task</button>
-                    <button class="reschedule-btn" id="clearBtn">Let me rethink</button>
-                </div>
+        </header>
+        <div class="menu-bar">
+            <div class="menu">
+                <li class="search-box">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Search...">
+                </li>
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-bar-chart-alt-2 icon' ></i>
+                            <span class="text nav-text">Revenue</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-bell icon'></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                                  </ul>
             </div>
-
-
+            <div class="bottom-content">
+                <li class="">
+                    <a href="#">
+                        <i class='bx bx-log-out icon' ></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
+                </li>
+                <li class="mode">
+                    <div class="sun-moon">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">Dark mode</span>
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+                
+            </div>
         </div>
     </div>
 
-    <script src="./task.js"></script>
+    <div class="main-content">
+        <div class="header">
+            <div class="project-title">
+                <h1>🎨 Hi!
+                    <?php echo htmlspecialchars($username); ?>
+                </h1>
+            </div>
+
+            <div class="project-subtitle">The logo embodies a source of light that expands outward, symbolizing
+                intelligence, integrity and originality.</div>
+
+            <div class="header-actions">
+                <div class="button-types">
+                    <button onclick="openModal()" class="add-button">+ Add to task</button>
+                    <!-- Trigger button to open modal -->
+
+                    <button class="more-button"><img
+                            src="https://img.icons8.com/?size=100&id=61873&format=png&color=000000" class="more" alt=""
+                            srcset=""></button>
+                </div>
+                <div class="search-filter">
+                    <input type="text" class="search-bar" placeholder="Search...">
+                    <button class="more-button"><img
+                            src="https://img.icons8.com/?size=100&id=3004&format=png&color=000000" class="more" alt=""
+                            srcset=""></button>
+                    <button class="more-button"><img
+                            src="https://img.icons8.com/?size=100&id=61873&format=png&color=000000" class="more" alt=""
+                            srcset=""></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="board-section">
+            <!-- <div class="section-header">
+                <h2>Wireframe</h2>
+                <button class="add-column">+ Add column</button>
+            </div> -->
+
+            <table class="board-table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>People</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (mysqli_num_rows($tasks_result) > 0): ?>
+                    <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
+                    <tr>
+                        <td>
+                            <div class="folder">
+                                <?php echo htmlspecialchars($task['task']); ?>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="avatar-group">
+                                <div class="avatar"></div>
+                                <div class="avatar"></div>
+                                <div class="avatar"></div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-ongoing">Ongoing</span></td>
+                        <td>
+                            <?php echo $task['created_at']; ?>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                    <?php else: ?>
+                    <p>No tasks yet. Add a task!</p>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Modal overlay and content -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <form method="post" action="">
+                <button class="close-button" onclick="closeModal()">×</button>
+                <h1>Add New Task</h1>
+                <p class="subtitle">Fill in the details below to create your task.</p>
+                <div class="separator"></div>
+                <label class="input-label">Task Description *</label>
+                <input type="text" name="task" class="email-input"
+                    placeholder="E.g., Buy groceries, Complete project report...">
+                <button type="submit" name="add_task" class="reset-button">Add</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('show');
+            document.querySelector('.modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.querySelector('.modal').classList.remove('show');
+        }
+        
+
+        const body = document.querySelector('body'),
+      sidebar = body.querySelector('nav'),
+      searchBtn = body.querySelector(".search-box"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+
+modeSwitch.addEventListener("click" , () =>{
+    body.classList.toggle("dark");
+    
+    if(body.classList.contains("dark")){
+        modeText.innerText = "Light mode";
+    }else{
+        modeText.innerText = "Dark mode";
+        
+    }
+});
+
+    </script>
 </body>
 
 </html>

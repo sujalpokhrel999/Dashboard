@@ -100,7 +100,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1>Gratafy</h1>
         <form action="" method="post">
             <input name="email" id="email" placeholder="Example@gmail.com" type="email" required />
-            <input name="password" id="password" placeholder="Password" type="password" required />
+            <div class="password"><input name="password" id="password" placeholder="Password" type="password" required />
+            <img src="../assets/images/view.png" alt="view-btn" id="view" class="view"></div>
+            
             <button type="submit">Log in 👉</button>
         </form>
         <a class="forget" href="./register.php">Forgot Your Password?</a>
@@ -120,7 +122,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Automatically close toast after 3 seconds
     window.onload = () => {
         setTimeout(closeToast, 10000);
+
+
+      
     };
+    const view = document.getElementById('view');
+        const password = document.getElementById('password');
+        password.addEventListener('input', function() {
+            if(password.value !==""){
+                view.style.display="block";
+            }else{
+                view.style.disply="none";
+            }
+        });
+
+        view.addEventListener('click',()=>{
+           if(password.type=="password"){
+            password.type="text";
+           }else{
+            password.type="password";
+           }
+        });
 </script>
 </body>
 

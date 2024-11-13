@@ -103,3 +103,15 @@ a {
     border-bottom: 1px solid #62627d;
 }
 
+.view{
+    display: none;
+    height: 15px;
+    width: 15px;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    cursor: pointer;
+}
+.password{
+    position: relative;
+}
