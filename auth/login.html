@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gratafy Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            font-family: calibri;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .login-container {
+            background-image: url("./background.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .login-inputs {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+
+        }
+
+        .login-inputs h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin: 10px;
+            text-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);         
+        }
+
+        .login-inputs form {
+            background-color: #23243c;
+            box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-inputs form input {
+            margin: 10px;
+            height: 35px;
+            background-color: #434459;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            color: #fff;
+            width: 250px;
+            padding: 1rem 1rem;
+            border: none;
+            border-radius: 0.3rem;
+            font-size: 0.875rem;
+        }
+
+        .login-inputs form input::placeholder {
+            color: #727383;
+        }
+
+        .login-inputs form button {
+            text-transform: uppercase;
+            width: 110px;
+            height: 35px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            margin: 5px;
+            font-weight: 600;
+            background-color: #ffffff;
+            color: #000000;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .login-inputs form button:hover {
+            background-color: rgb(90, 100, 231);
+            transition: all ease 0.3s;
+        }
+
+        .forget {
+            color: #62627d;
+            margin: 20px;
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            border-bottom: 1px solid #62627d;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="login-container">
+        <div class="login-inputs">
+            <h1>Gratafy</h1>
+            <form action="" method="post">
+                <input name="email" id="email" placeholder="Example@gmail.com" type="email" />
+                <input name="password" id="password" placeholder="Password" type="password" />
+                <button type="submit">Log in 👉</button>
+            </form>
+            <a class="forget" href="#">Forget Your Password</a>
+        </div>
+    </section>
+    <script>
+         function closeToast() {
+        const toast = document.querySelector('.custom-toast');
+        if (toast) {
+            toast.style.display = 'none';
+        }
+    }
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 3000 });
+        });
+        toastList.forEach(toast => toast.show());
+    </script>
+</body>
+
+</html>
+

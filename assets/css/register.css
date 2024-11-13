@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: calibri;
+}
+
+a {
+    text-decoration: none;
+}
+
+.register-container {
+    background-image: url("../images/background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.register-inputs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+}
+
+.register-inputs h1 {
+    color: #fff;
+    font-size: 2.5rem;
+    letter-spacing: 3px;
+    margin:10px 10px 20px 10px;
+    text-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);         
+}
+
+.register-inputs form {
+    background-color: #23243c;
+    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-inputs form input {
+    margin: 10px;
+    height: 35px;
+    background-color: #434459;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 250px;
+    padding: 1rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    font-size: 0.875rem;
+}
+
+.register-inputs form input::placeholder {
+    color: #727383;
+}
+
+.register-inputs form button {
+    text-transform: uppercase;
+    width: 110px;
+    height: 35px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    margin: 5px;
+    font-weight: 600;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.register-inputs form button:hover {
+    background-color: rgb(90, 100, 231);
+    transition: all ease 0.3s;
+}
+
+.forget {
+    color: #62627d;
+    margin: 20px;
+    letter-spacing: 2px;
+    font-size: 0.7rem;
+    border-bottom: 1px solid #62627d;
+}
+
+/* Toast container styling */
+.custom-toast {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    max-width: 300px;
+    margin: 10px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-toast.success {
+    background-color: #4caf50;
+}
+
+.custom-toast.error {
+    background-color: #f44336;
+}
+
+/* Toast content styling */
+.custom-toast-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Close button styling */
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}

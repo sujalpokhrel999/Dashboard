@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include ('../auth/connect.php');
+include ('../includes/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
@@ -12,7 +12,7 @@ function handleLogout() {
     // Unset all session variables and destroy the session
     $_SESSION = array();
     session_destroy();
-    header("Location: index.php"); // Redirect to login page
+    header("Location: ../auth/login.php"); // Redirect to login page
     exit();
 }
 
@@ -47,21 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
 
                 <div class="profile">
                     <img src="pp.jpg" alt="Profile Picture">
-                    <h2><?php 
-if (isset($_SESSION['email'])) {
-    $email = $_SESSION['email'];
-    $query = mysqli_query($conn, "SELECT users.* FROM `users` WHERE users.email='$email'");
-    
-    // Check if the query executed successfully
-    if ($query) {
-        while ($row = mysqli_fetch_array($query)) {
-            echo $row['name'];
-        }
-    } else {
-        echo "Error in query execution: " . mysqli_error($conn);
-    }
-}
-?>
+                    <h2><?php echo htmlspecialchars($username); ?>
                     </h2>
                 </div>
                 <div class="menus">

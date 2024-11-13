@@ -1,6 +1,6 @@
 <?php
 // Include database connection file
-include('../auth/connect.php');
+include('../includes/connect.php');
 
 // Start the session at the beginning of the script
 session_start();
