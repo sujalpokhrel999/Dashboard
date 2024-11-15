@@ -206,6 +206,27 @@ body.dark .sidebar li a:hover .text {
     display: none;
 }
 
+.logoutBtn{
+    list-style: none;
+    height: 100%;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: var(--tran-03);
+    border: none;
+}
+
+.logoutBtn:hover{
+    background-color: var(--primary-color);
+}
+.logoutBtn:hover .icon,
+.logoutBtn:hover .text {
+    color: var(--sidebar-color);
+}
 .sidebar .menu-bar .mode {
     border-radius: 6px;
     background-color: var(--primary-color-light);
@@ -232,6 +253,41 @@ body.dark .mode .sun-moon i.sun {
 
 body.dark .mode .sun-moon i.moon {
     opacity: 0;
+}
+
+
+.notification{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #242526;
+}
+
+.notification::before{
+    content: '';
+    position: absolute;
+    height: 5px;
+    width: 5px;
+    background-color: #fe5758;
+    color: white;
+    font-size: 8px;
+    top: 13px;
+    right: 13px;
+    z-index: 5;
+    display: flex;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+}
+
+.profileImg{
+    background-image: url('pp.jpg');
+    background-size: cover;
+    background-position: center;
+    width: 100%;  /* Set the desired width */
+    height: 100%; /* Set the desired height */
+    border-radius: 50%; /* For circular profile image */
 }
 
 .menu-bar .bottom-content .toggle-switch {

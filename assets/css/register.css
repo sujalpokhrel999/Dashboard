@@ -143,3 +143,27 @@ a {
     font-size: 16px;
     cursor: pointer;
 }
+.view{
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    height: 18px;
+    width: 18px;
+    display: none;
+    cursor: pointer;
+}
+.view2{
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    height: 18px;
+    width: 18px;
+    display: none;
+    cursor: pointer;
+}
+.password{
+    position: relative;
+}
+.password2{
+    position: relative;
+}

@@ -51,6 +51,8 @@ if ($query && mysqli_num_rows($query) > 0) {
     exit();
 }
 
+
+
 // Fetch expenses for the logged-in user
 $expense_query = "SELECT * FROM expenses WHERE user_id = '$user_id' ORDER BY created_at DESC";
 $expense_result = mysqli_query($conn, $expense_query);
@@ -71,6 +73,20 @@ while ($row = mysqli_fetch_assoc($category_totals_result)) {
         'total' => floatval($row['total'])
     );
 }
+
+
+
+if (isset($_POST['logout'])) {
+    // Unset all session variables
+    session_unset();
+    // Destroy the session
+    session_destroy();
+    // Redirect to the login page
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+
 
 ?>
 
@@ -128,10 +144,17 @@ while ($row = mysqli_fetch_assoc($category_totals_result)) {
             </div>
             <div class="bottom-content">
                 <li class="">
-                    <a href="#">
-                        <i class='bx bx-log-out icon' ></i>
-                        <span class="text nav-text">Logout</span>
-                    </a>
+                    <form method="POST" action="" style="
+                        display: flex;
+                        border-radius: 6px;
+                        width: 100%;
+                        height: 100%;
+                        align-items: center;">
+                            <button type="submit" class="logoutBtn" name="logout">
+                                    <i class='bx bx-log-out icon'></i>
+                                    <span class="text nav-text">Logout</span>
+                            </button>
+                    </form>
                 </li>
                 <li class="mode">
                     <div class="sun-moon">
@@ -232,7 +255,7 @@ while ($row = mysqli_fetch_assoc($category_totals_result)) {
                     placeholder="E.g., Shankhamul-Sinamangal">
                     <label class="input-label">Category *</label>
                     <select id="category" name="category"  required>
-        <option value="Food">Food</option>
+        <option value="Food">Food and Drinks</option>
         <option value="Transportation">Transportation</option>
         <option value="Entertainment">Entertainment</option>
         <option value="Utilities">Utilities</option>

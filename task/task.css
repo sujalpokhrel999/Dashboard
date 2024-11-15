@@ -92,6 +92,29 @@ body.dark{
 .sidebar.close .text{
     opacity: 0;
 }
+
+.logoutBtn{
+  list-style: none;
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: var(--tran-03);
+  border: none;
+  cursor: pointer;
+}
+
+.logoutBtn:hover{
+  background-color: var(--primary-color);
+}
+.logoutBtn:hover .icon,
+.logoutBtn:hover .text {
+  color: var(--sidebar-color);
+}
 /* =========================== */
 
 .sidebar header{
@@ -431,6 +454,7 @@ body.dark .home .text{
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.865rem;
+  cursor: pointer;
 }
 
 .status-ongoing {
@@ -605,4 +629,28 @@ body.dark .home .text{
   font-size: 18px;
   color: #333;
   cursor: pointer;
+}
+
+.deleteIcon{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.deleteIcon img{
+  cursor: pointer;
+}
+
+.deleteBtn{
+  border:none;
+  outline:none;
+  background: transparent;
+}
+
+
+.noTask{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 60px;
 }

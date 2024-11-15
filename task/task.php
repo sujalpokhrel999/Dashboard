@@ -5,6 +5,7 @@ include('../includes/connect.php');
 // Start the session at the beginning of the script
 session_start();
 
+
 // Redirect to login if the user is not logged in
 if (!isset($_SESSION['email'])) {
     header("Location: ../auth/login.php");
@@ -47,8 +48,42 @@ if ($query && mysqli_num_rows($query) > 0) {
 // Fetch tasks for the logged-in user
 $tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
 $tasks_result = mysqli_query($conn, $tasks_query);
-?>
 
+// Handle task deletion
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_task'])) {
+    $task_id = $_POST['task_id'];
+    $user_id = $_POST['user_id'];
+
+    // Prepare the SQL statement to delete the task
+    $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $task_id, $user_id);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        // Redirect to the same page to avoid form resubmission
+        header("Location: task.php");
+        exit();
+    } else {
+        echo "Error deleting task: " . $conn->error;
+    }
+
+    $stmt->close();
+}
+
+
+if (isset($_POST['logout'])) {
+    // Unset all session variables
+    session_unset();
+    // Destroy the session
+    session_destroy();
+    // Redirect to the login page
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,6 +97,7 @@ $tasks_result = mysqli_query($conn, $tasks_query);
 </head>
 
 <body>
+
     <div class="sidebar">
         <header>
             <div class="image-text">
@@ -102,10 +138,17 @@ $tasks_result = mysqli_query($conn, $tasks_query);
             </div>
             <div class="bottom-content">
                 <li class="">
-                    <a href="#">
-                        <i class='bx bx-log-out icon' ></i>
-                        <span class="text nav-text">Logout</span>
-                    </a>
+                    <form method="POST" action="" style="
+                        display: flex;
+                        border-radius: 6px;
+                        width: 100%;
+                        height: 100%;
+                        align-items: center;">
+                            <button type="submit" class="logoutBtn" name="logout">
+                                    <i class='bx bx-log-out icon'></i>
+                                    <span class="text nav-text">Logout</span>
+                            </button>
+                    </form>
                 </li>
                 <li class="mode">
                     <div class="sun-moon">
@@ -161,42 +204,61 @@ $tasks_result = mysqli_query($conn, $tasks_query);
                 <button class="add-column">+ Add column</button>
             </div> -->
 
-            <table class="board-table">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>People</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (mysqli_num_rows($tasks_result) > 0): ?>
-                    <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
-                    <tr>
-                        <td>
-                            <div class="folder">
-                                <?php echo htmlspecialchars($task['task']); ?>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="avatar-group">
-                                <div class="avatar"></div>
-                                <div class="avatar"></div>
-                                <div class="avatar"></div>
-                            </div>
-                        </td>
-                        <td><span class="status-badge status-ongoing">Ongoing</span></td>
-                        <td>
-                            <?php echo $task['created_at']; ?>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                    <?php else: ?>
-                    <p>No tasks yet. Add a task!</p>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <?php if (mysqli_num_rows($tasks_result) > 0): ?>
+    <table class="board-table">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>People</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
+            <tr>
+                <td>
+                    <div class="folder">
+                        <?php echo htmlspecialchars($task['task']); ?>
+                    </div>
+                </td>
+                <td>
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge status-ongoing" id="status-badge">Ongoing</span>
+                </td>
+                <td>
+                    <?php echo $task['created_at']; ?>
+                </td>
+                <td>
+                    <div class="delete">
+                        <div class="deleteIcon">
+                            <form method="POST" action="task.php">
+                                <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                                <button type="submit" name="delete_task" class="deleteBtn">
+                                    <img src="https://img.icons8.com/puffy/20/trash.png" alt="Delete Task">
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+<?php else: ?>
+    <p class="noTask">
+        <img src="./notask.png" alt="No tasks available">
+    </p>
+<?php endif; ?>
+
         </div>
     </div>
     <!-- Modal overlay and content -->
@@ -214,6 +276,8 @@ $tasks_result = mysqli_query($conn, $tasks_query);
             </form>
         </div>
     </div>
+
+    <script src="./task.js"></script>
 
 
     <script>
@@ -244,6 +308,9 @@ modeSwitch.addEventListener("click" , () =>{
         
     }
 });
+
+
+
 
     </script>
 </body>

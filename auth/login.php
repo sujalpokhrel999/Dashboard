@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_result($user_id, $db_password);
         $stmt->fetch();
 
-        if ($password === $db_password) {
+        if (password_verify($password, $db_password)) {
             $message = "Login successful";
             $toastClass = "bg-success";
             session_start();
@@ -100,12 +100,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1>Gratafy</h1>
         <form action="" method="post">
             <input name="email" id="email" placeholder="Example@gmail.com" type="email" required />
-            <div class="password"><input name="password" id="password" placeholder="Password" type="password" required />
-            <img src="../assets/images/view.png" alt="view-btn" id="view" class="view"></div>
-            
+          <div class="password"> <input name="password" id="password" placeholder="Password" type="password" id="password" required />
+          <img src="../assets/images/view.png" alt="view-btn" class="view" id="view">
+          </div>
             <button type="submit">Log in 👉</button>
         </form>
-        <a class="forget" href="./register.php">Forgot Your Password?</a>
+        <div class="SignUp_Forgot">
+        <a class="forget" href="./register.php">Sign Up</a>
+        <span style="color: #62627d;">/</span>
+        <a class="forget forgetPassword" href="./forgot.php">Forgot Your Password? </a>
+        </div>
     </div>
 </section>
 
@@ -122,27 +126,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Automatically close toast after 3 seconds
     window.onload = () => {
         setTimeout(closeToast, 10000);
-
-
-      
     };
-    const view = document.getElementById('view');
-        const password = document.getElementById('password');
-        password.addEventListener('input', function() {
-            if(password.value !==""){
-                view.style.display="block";
-            }else{
-                view.style.disply="none";
-            }
-        });
 
-        view.addEventListener('click',()=>{
-           if(password.type=="password"){
-            password.type="text";
-           }else{
-            password.type="password";
-           }
-        });
+
+    const view = document.getElementById('view'); 
+    const password = document.getElementById('password');
+    password.addEventListener('input', () => {
+    // Check if the password input is not empty
+    if (password.value.trim() !== "") {
+        view.style.display = "block"; // Show the icon
+    } else {
+        view.style.display = "none"; // Hide the icon
+    }
+});
+
+view.addEventListener('click',()=>{
+    if(password.type === "password"){
+        password.type ="text";
+        console.log('pass');
+        view.src = "../assets/images/hide.png";
+
+    }else{
+        password.type ="password";
+        console.log('word');
+        view.src = "../assets/images/view.png";
+    }
+});
 </script>
 </body>
 

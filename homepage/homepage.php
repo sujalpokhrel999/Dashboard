@@ -41,6 +41,35 @@ if ($query && mysqli_num_rows($query) > 0) {
     exit();
 }
 
+if (isset($_POST['logout'])) {
+    // Unset all session variables
+    session_unset();
+    // Destroy the session
+    session_destroy();
+    // Redirect to the login page
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+
+// Fetch total expenses for the logged-in user
+$total_expenses_query = "SELECT SUM(amount) as total_expenses FROM expenses WHERE user_id = '$user_id'";
+$total_expenses_result = mysqli_query($conn, $total_expenses_query);
+$total_expenses = 0;
+if ($total_expenses_result && mysqli_num_rows($total_expenses_result) > 0) {
+    $row = mysqli_fetch_assoc($total_expenses_result);
+    $total_expenses = $row['total_expenses'];
+}
+
+// Fetch total tasks for the logged-in user
+$total_tasks_query = "SELECT COUNT(*) as total_tasks FROM tasks WHERE user_id = '$user_id'";
+$total_tasks_result = mysqli_query($conn, $total_tasks_query);
+$total_tasks = 0;
+if ($total_tasks_result && mysqli_num_rows($total_tasks_result) > 0) {
+    $row = mysqli_fetch_assoc($total_tasks_result);
+    $total_tasks = $row['total_tasks'];
+}
+
 // Fetch tasks for the logged-in user
 $tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
 $tasks_result = mysqli_query($conn, $tasks_query);
@@ -101,10 +130,17 @@ $tasks_result = mysqli_query($conn, $tasks_query);
             </div>
             <div class="bottom-content">
                 <li class="">
-                    <a href="#">
-                        <i class='bx bx-log-out icon'></i>
-                        <span class="text nav-text">Logout</span>
-                    </a>
+                    <form method="POST" action="" style="
+                        display: flex;
+                        border-radius: 6px;
+                        width: 100%;
+                        height: 100%;
+                        align-items: center;">
+                            <button type="submit" class="logoutBtn" name="logout">
+                                    <i class='bx bx-log-out icon'></i>
+                                    <span class="text nav-text">Logout</span>
+                            </button>
+                    </form>
                 </li>
                 <li class="mode">
                     <div class="sun-moon">
@@ -132,8 +168,10 @@ $tasks_result = mysqli_query($conn, $tasks_query);
             </div> -->
         </div>
         <div class="flex items-center gap-4">
-            <button class="bg-black w-10 h-10 text-white p-2 rounded-full"></button>
-            <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+            <button class=" w-10 h-10 text-white p-2 rounded-full notification">
+            <img width="20" height="20" src="https://img.icons8.com/puffy/20/appointment-reminders.png" alt="appointment-reminders" style="filter: brightness(0) invert(1);"/>
+            </button>
+            <div class="w-10 h-10 bg-gray-200 rounded-full profileImg" ></div>
         </div>
     </header>
 
@@ -147,7 +185,7 @@ $tasks_result = mysqli_query($conn, $tasks_query);
                 <div class="text-gray-400">🔔</div>
             </div>
             <div class="flex justify-between items-center">
-                <div class="text-xl font-bold">15</div>
+                <div class="text-xl font-bold"><?php echo number_format($total_tasks); ?></div>
                 <div class="text-red-500 text-sm">From last week</div>
                 <!-- <button class="bg-black w-10 h-10 text-white p-2 rounded-full"></button> -->
             </div>
@@ -156,7 +194,7 @@ $tasks_result = mysqli_query($conn, $tasks_query);
         <div class="card">
             <div class="flex justify-between items-start mb-4">
                 <h3 class="font-bold">Expenses</h3>
-                <div class="text-purple-400">  <div class="text-l font-bold">$5,839</div></div>
+                <div class="text-purple-400">  <div class="text-l font-bold">$<?php echo number_format($total_expenses, 2); ?></div></div>
             </div>
             <svg viewBox="0 0 200 60" class="mb-0">
                 <path d="M0,30 C20,40 40,20 60,30 S100,40 140,30 S180,20 200,30" class="chart-line"/>

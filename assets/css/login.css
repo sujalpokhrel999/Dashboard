@@ -97,21 +97,29 @@ a {
 
 .forget {
     color: #62627d;
-    margin: 20px;
+    margin: 20px 2px 20px 20px;
     letter-spacing: 2px;
     font-size: 0.7rem;
     border-bottom: 1px solid #62627d;
 }
 
+.forgetPassword{
+    margin-top: 0;
+    margin-left:2px ;
+}
+
 .view{
-    display: none;
-    height: 15px;
-    width: 15px;
     position: absolute;
     top: 18px;
     right: 18px;
+    height: 18px;
+    width: 18px;
+    display: none;
     cursor: pointer;
 }
 .password{
     position: relative;
+}
+.SignUp_Forgot{
+    margin:20px
 }

@@ -1,46 +1,80 @@
 <?php
+require 'E:/xampp/htdocs/dashboard/Dashboard/includes/src/PHPMailer.php';
+require 'E:/xampp/htdocs/dashboard/Dashboard/includes/src/SMTP.php';
+require 'E:/xampp/htdocs/dashboard/Dashboard/includes/src/Exception.php';
+
+
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+$message='';
+$toastClass='';
 include '../includes/connect.php';
-
-$message = "";
-$toastClass = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+// forgot_password.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
-    $password = $_POST['password'];
 
-      // Hash the password
-      $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    // Database connection
 
-    // Check if email already exists
-    $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
-    $checkEmailStmt->bind_param("s", $email);
-    $checkEmailStmt->execute();
-    $checkEmailStmt->store_result();
+    // Check if email exists in the database
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
 
-    if ($checkEmailStmt->num_rows > 0) {
-        $message = "Email ID already exists";
-        $toastClass = "primary"; // Primary color
-    } else {
-        // Prepare and bind
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $email, $hashedPassword);
+    if ($stmt->num_rows > 0) {
+        // Generate a unique token
+        $token = bin2hex(random_bytes(16));
 
-        if ($stmt->execute()) {
-            $message = "Account created successfully";
-            $toastClass = "success"; // Success color
-        } else {
-            $message = "Error: " . $stmt->error;
-            $toastClass = "danger"; // Danger color
+        // Save the token to the database
+        $stmt = $conn->prepare("UPDATE users SET reset_token = ? WHERE email = ?");
+        $stmt->bind_param("ss", $token, $email);
+        $stmt->execute();
+
+        // Prepare the reset link
+        $resetLink = "http://localhost/dashboard/Dashboard/auth/ResetPassword.php?token=" . $token;
+
+
+        // Create a PHPMailer instance
+        $mail = new PHPMailer(true);
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';  // Use your mail server, for example, Gmail
+            $mail->SMTPAuth = true;
+            $mail->Username = 'sujal3pokhrel@gmail.com';  // Your email address
+            $mail->Password = 'zxgq wsox oovl cifr';  // Your email password or app-specific password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;  // SMTP port
+
+            // Recipients
+            $mail->setFrom('sujal3pokhrel@gmail.com', 'Gratafy');  // From email and name
+            $mail->addAddress($email);  // Recipient's email address
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Password Reset Request';
+            $mail->Body = "Click the link to reset your password: <a href='$resetLink'>$resetLink</a>";
+
+            // Send the email
+            $mail->send();
+            $message= "An email has been sent to your address with a reset link.";
+            $toastClass = "success";
+
+        } catch (Exception $e) {
+            echo "Failed to send email. Mailer Error: {$mail->ErrorInfo}";
         }
-
-        $stmt->close();
+    } else {
+        $message= "Email address not found.";
+        $toastClass="danger";
     }
-  
-    $checkEmailStmt->close();
+
+    $stmt->close();
     $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -95,19 +129,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button class="close-btn" onclick="closeToast()">x</button>
         </div>
     </div>
-    
 <?php endif; ?>
 
 <section class="register-container">
     <div class="register-inputs">
         <h1>Gratafy</h1>
-        <form action="" method="post">
-            <input name="username" id="username" placeholder="Username" type="text" required />
+        <form id="forgotPasswordForm" method="POST" action="">
             <input name="email" id="email" placeholder="Example@gmail.com" type="email" required />
-            <div class="password"> <input name="password" id="password" placeholder="Password" type="password" id="password" required />
-          <img src="../assets/images/view.png" alt="view-btn" class="view" id="view">
-          </div>
-            <button type="submit">Register</button>
+          
+            <button type="submit">Search</button>
         </form>
         <a class="forget" href="./login.php">Already have an account? Sign in</a>
     </div>

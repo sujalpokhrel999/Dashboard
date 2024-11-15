@@ -210,6 +210,29 @@ body.dark .sidebar li a:hover .text{
     width: 60px;
 }
 
+.logoutBtn{
+  list-style: none;
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  text-decoration: none;
+  border: none;
+  transition: var(--tran-03);
+  cursor: pointer;
+}
+
+.logoutBtn:hover{
+  background-color: var(--primary-color);
+}
+.logoutBtn:hover .icon,
+.logoutBtn:hover .text {
+  color: var(--sidebar-color);
+}
+
 .mode .sun-moon i{
     position: absolute;
 }
