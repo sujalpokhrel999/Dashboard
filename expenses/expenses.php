@@ -11,24 +11,31 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-// Handle task addition
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_task'])) {
-    $task = $_POST['task'];
+// Handle expense addition
+// Handle expense addition
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_expense'])) {
+    $description = $_POST['description'];
+    $category = $_POST['category'];
+    $amount = $_POST['amount'];
     $user_id = $_SESSION['user_id']; // Assuming the user ID is stored in the session
 
     // Using prepared statements to securely insert data
-    $stmt = $conn->prepare("INSERT INTO tasks (user_id, task) VALUES (?, ?)");
-    $stmt->bind_param("is", $user_id, $task);
+    $stmt = $conn->prepare("INSERT INTO expenses (user_id, description, category, amount) VALUES (?, ?, ?, ?)");
+
+    // Check if $amount should be 'i' or 'd' depending on its data type (integer or float)
+    $stmt->bind_param("issd", $user_id, $description, $category, $amount);
+
     if ($stmt->execute()) {
         // Redirect to the same page to avoid form resubmission
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     } else {
         // Handle error (optional)
-        echo "Error adding task: " . $stmt->error;
+        echo "Error adding expense: " . $stmt->error;
     }
     $stmt->close();
 }
+
 
 // Fetch user data
 $email = $_SESSION['email'];
@@ -44,9 +51,27 @@ if ($query && mysqli_num_rows($query) > 0) {
     exit();
 }
 
-// Fetch tasks for the logged-in user
-$tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
-$tasks_result = mysqli_query($conn, $tasks_query);
+// Fetch expenses for the logged-in user
+$expense_query = "SELECT * FROM expenses WHERE user_id = '$user_id' ORDER BY created_at DESC";
+$expense_result = mysqli_query($conn, $expense_query);
+
+
+// Fetch category totals for the graph
+$category_totals_query = "SELECT category, SUM(amount) as total 
+                         FROM expenses 
+                         WHERE user_id = '$user_id' 
+                         GROUP BY category";
+$category_totals_result = mysqli_query($conn, $category_totals_query);
+
+// Fetch category totals and create JSON - keep this part
+$category_data = array();
+while ($row = mysqli_fetch_assoc($category_totals_result)) {
+    $category_data[] = array(
+        'category' => $row['category'],
+        'total' => floatval($row['total'])
+    );
+}
+
 ?>
 
 
@@ -57,7 +82,8 @@ $tasks_result = mysqli_query($conn, $tasks_query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Management UI</title>
-    <link rel="stylesheet" href="./task.css">
+    <link rel="stylesheet" href="./expenses.css">
+
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
@@ -87,13 +113,13 @@ $tasks_result = mysqli_query($conn, $tasks_query);
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="./task.php">
+                        <a href="../task/task.php">
                             <i class='bx bx-bar-chart-alt-2 icon' ></i>
                             <span class="text nav-text">Tasks</span>
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="../expenses/expenses.php">
+                        <a href="./expenses.php">
                             <i class='bx bx-bell icon'></i>
                             <span class="text nav-text">Expenses</span>
                         </a>
@@ -124,8 +150,9 @@ $tasks_result = mysqli_query($conn, $tasks_query);
 
     <div class="main-content">
         <div class="header">
+            <div class="left">
             <div class="project-title">
-                <h1>Task Manager
+                <h1>Expense Tracker
                 </h1>
             </div>
 
@@ -134,22 +161,18 @@ $tasks_result = mysqli_query($conn, $tasks_query);
 
             <div class="header-actions">
                 <div class="button-types">
-                    <button onclick="openModal()" class="add-button">+ Add to task</button>
+                    <button onclick="openModal()" class="add-button">+ Add expenses</button>
                     <!-- Trigger button to open modal -->
 
                     <button class="more-button"><img
                             src="https://img.icons8.com/?size=100&id=61873&format=png&color=000000" class="more" alt=""
                             srcset=""></button>
                 </div>
-                <div class="search-filter">
-                    <input type="text" class="search-bar" placeholder="Search...">
-                    <button class="more-button"><img
-                            src="https://img.icons8.com/?size=100&id=3004&format=png&color=000000" class="more" alt=""
-                            srcset=""></button>
-                    <button class="more-button"><img
-                            src="https://img.icons8.com/?size=100&id=61873&format=png&color=000000" class="more" alt=""
-                            srcset=""></button>
-                </div>
+                
+            </div>
+            </div>
+            <div class="right">
+                    <div class="bar-chart" id="expenseChart"></div>
             </div>
         </div>
 
@@ -164,36 +187,33 @@ $tasks_result = mysqli_query($conn, $tasks_query);
             <table class="board-table">
                 <thead>
                     <tr>
-                        <th>Task</th>
-                        <th>People</th>
-                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Category</th>
                         <th>Date</th>
+                        <th>Amount</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (mysqli_num_rows($tasks_result) > 0): ?>
-                    <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
+                <?php if (mysqli_num_rows($expense_result) > 0): ?>
+                    <?php while ($expense = mysqli_fetch_assoc($expense_result)): ?>
+                    <tr>
                     <tr>
                         <td>
                             <div class="folder">
-                                <?php echo htmlspecialchars($task['task']); ?>
+                            <?php echo htmlspecialchars($expense['description']); ?>
                             </div>
                         </td>
+                        <td><span class="status-badge <?php echo htmlspecialchars($expense['category']); ?> "><?php echo htmlspecialchars($expense['category']); ?></span></td>
                         <td>
-                            <div class="avatar-group">
-                                <div class="avatar"></div>
-                                <div class="avatar"></div>
-                                <div class="avatar"></div>
-                            </div>
+                        <?php echo htmlspecialchars($expense['created_at']); ?>
                         </td>
-                        <td><span class="status-badge status-ongoing">Ongoing</span></td>
                         <td>
-                            <?php echo $task['created_at']; ?>
+                        <?php echo htmlspecialchars($expense['amount']); ?>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
-                    <p>No tasks yet. Add a task!</p>
+                    <!-- <p>No tasks yet. Add a task!</p> -->
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -204,18 +224,33 @@ $tasks_result = mysqli_query($conn, $tasks_query);
         <div class="modal">
             <form method="post" action="">
                 <button class="close-button" onclick="closeModal()">×</button>
-                <h1>Add New Task</h1>
-                <p class="subtitle">Fill in the details below to create your task.</p>
+                <h1>Add New Expense</h1>
+                <p class="subtitle">Fill in the details below to create your expense.</p>
                 <div class="separator"></div>
-                <label class="input-label">Task Description *</label>
-                <input type="text" name="task" class="email-input"
-                    placeholder="E.g., Buy groceries, Complete project report...">
-                <button type="submit" name="add_task" class="reset-button">Add</button>
+                <label class="input-label">Expense Description *</label>
+                <input type="text" name="description" class="input"
+                    placeholder="E.g., Shankhamul-Sinamangal">
+                    <label class="input-label">Category *</label>
+                    <select id="category" name="category"  required>
+        <option value="Food">Food</option>
+        <option value="Transportation">Transportation</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Utilities">Utilities</option>
+        <!-- Add more categories as needed -->
+    </select>
+                    <label class="input-label">Amount *</label>
+                <input type="text" name="amount" class="input"
+                    placeholder="E.g., $20">
+                <button type="submit" name="add_expense" class="reset-button">Add</button>
             </form>
         </div>
     </div>
 
-
+    <script>
+    // Make category data available to JavaScript
+    const categoryData = <?php echo json_encode($category_data); ?>;
+</script>
+<script src="./expenses.js"></script> 
     <script>
         function openModal() {
             document.getElementById('modalOverlay').classList.add('show');
@@ -246,6 +281,26 @@ modeSwitch.addEventListener("click" , () =>{
 });
 
     </script>
+
+    <script>
+        const body = document.querySelector('body'),
+      sidebar = body.querySelector('nav'),
+      searchBtn = body.querySelector(".search-box"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+
+modeSwitch.addEventListener("click" , () =>{
+    body.classList.toggle("dark");
+    
+    if(body.classList.contains("dark")){
+        modeText.innerText = "Light mode";
+    }else{
+        modeText.innerText = "Dark mode";
+        
+    }
+});
+    </script>
+
 </body>
 
 </html>

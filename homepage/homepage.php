@@ -48,97 +48,183 @@ $tasks_result = mysqli_query($conn, $tasks_query);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="./homepagecss.css">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="profile-section" style="flex-basis: 80%; display: flex; flex-direction: column; gap: 35px;">
-                <div class="profile">
-                    <img src="pp.jpg" alt="Profile Picture">
-                    <h2><?php echo htmlspecialchars($username); ?></h2>
+    <div class="sidebar">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="../assets/images/logo.png" alt="">
+                </span>
+                <div class="text logo-text">
+                    <span class="name">EffortEase</span>
                 </div>
-
-                <div class="menus">
-                    <ul class="menu">
-                        <li><a href="./homepage.php"><img src="https://img.icons8.com/material-outlined/18/home.png" alt="dashboard"/> Dashboard</a></li>
-                        <li><a href="../task/task.php"><img src="https://img.icons8.com/material-outlined/18/student-center.png" alt="courses"/> Courses</a></li>
-                        <li><a href="../expenses/expenses.html"><img src="https://img.icons8.com/ios-glyphs/20/task.png" alt="expenses"/> Expenses</a></li>
-                        <li><a href="#"><img src="https://img.icons8.com/material-outlined/18/compass.png" alt="schedules"/> Schedules</a></li>
-                        <li><a href="#"><img src="https://img.icons8.com/fluency-systems-regular/20/user-group-woman-woman.png" alt="classmates"/> Classmates</a></li>
-                        <li><a href="#"><img src="https://img.icons8.com/ios/20/settings.png" alt="settings"/> Settings</a></li>
-                    </ul>
-                </div>
-
-                <!-- Logout Form -->
-                <form method="post" action="logout.php">
-                    <button type="submit" name="logout" class="logout"><img src="https://img.icons8.com/windows/20/exit.png" alt="logout"/> Log Out</button>
-                </form>
             </div>
-        </nav>
+        </header>
+        <div class="menu-bar">
+            <div class="menu">
+                <li class="search-box">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Search...">
+                </li>
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="./homepage.php">
+                            <i class='bx bx-home-alt icon'></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="../task/task.php">
+                            <i class='bx bx-bar-chart-alt-2 icon'></i>
+                            <span class="text nav-text">Tasks</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="../expenses/expenses.php">
+                            <i class='bx bx-bell icon'></i>
+                            <span class="text nav-text">Expenses</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="bottom-content">
+                <li class="">
+                    <a href="#">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
+                </li>
+                <li class="mode">
+                    <div class="sun-moon">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">Dark mode</span>
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <header>
-                <h1>Hi, <?php echo htmlspecialchars($username); ?></h1>
-                <button class="new-course-btn" id="newTaskBtn">Add New Task</button>
-            </header>
-
-            <!-- Stats Section -->
-            <section class="stats">
-                <div class="stat-card">
-                    <h3 id="TotalTaskCounter"><?php echo mysqli_num_rows($tasks_result); ?></h3>
-                    <p>Total Tasks</p>
-                </div>
-                <div class="stat-card">
-                    <h3 id="CompletedTaskCounter">196/200</h3>
-                    <p>Completed Tasks</p>
-                </div>
-                <div class="stat-card">
-                    <h3 id="TotalExpensesCounter">12</h3>
-                    <p>Total Expenses</p>
-                </div>
-            </section>
-
-            <!-- Add Task Form -->
-            <section class="new-task-form" style="display: none;">
-                <h2>Add New Task</h2>
-                <form method="post" action="">
-                    <input type="text" name="task" required placeholder="Enter Task">
-                    <button type="submit" name="add_task">Add Task</button>
-                </form>
-            </section>
-
-            <!-- Tasks Section -->
-            <section class="assignments">
-                <h2>Today's Tasks</h2>
-                <?php if (mysqli_num_rows($tasks_result) > 0): ?>
-                    <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
-                        <div class="assignment-card">
-                            <p><?php echo htmlspecialchars($task['task']); ?></p>
-                            <span class="status"><?php echo $task['created_at']; ?></span>
-                        </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p>No tasks yet. Add a task!</p>
-                <?php endif; ?>
-            </section>
+            </div>
         </div>
     </div>
 
+    <!-- Main Content -->
+     <div class="main-content">
+     <header class="flex justify-between items-center mb-8">
+        <div class="flex items-center gap-8">
+            <h1 class="text-2xl font-bold">Analytics</h1>
+            <!-- <div class="flex gap-4">
+                <button class="bg-black w-50 h-8 text-m text-white px-4 py-2 rounded-full">Full Statistics</button>
+                <button class="bg-gray text-gray-500 px-4 py-2 rounded-full">Results Summary</button>
+            </div> -->
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="bg-black w-10 h-10 text-white p-2 rounded-full"></button>
+            <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold mb-2 ">Total Tasks</h3>
+                    <div class="text-sm text-gray-500">14 November</div>
+                </div>
+                <div class="text-gray-400">🔔</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="text-xl font-bold">15</div>
+                <div class="text-red-500 text-sm">From last week</div>
+                <!-- <button class="bg-black w-10 h-10 text-white p-2 rounded-full"></button> -->
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="font-bold">Expenses</h3>
+                <div class="text-purple-400">  <div class="text-l font-bold">$5,839</div></div>
+            </div>
+            <svg viewBox="0 0 200 60" class="mb-0">
+                <path d="M0,30 C20,40 40,20 60,30 S100,40 140,30 S180,20 200,30" class="chart-line"/>
+            </svg>
+
+        </div>
+
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold">Income statistics</h3>
+                <div class="text-green-500"><div class="text-l font-bold">+8%</div></div>
+            </div>
+            <div class="flex items-end h-7 gap-4">
+                <div class="h-1/3 w-12 bg-blue-100 rounded"></div>
+                <div class="h-1/2 w-12 bg-blue-200 rounded"></div>
+                <div class="h-full w-12 bg-blue-400 rounded"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-500 mt-2">
+                <div>15%</div>
+                <div>21%</div>
+                <div>32%</div>
+            </div>
+        </div>
+
+        <div class="plan-card">
+            <div class="text-l font-bold mb-8">Choose Best Plan!</div>
+            <div class="flex gap-4">
+                <button class="bg-white text-gray-800 px-4 py-2 rounded-lg text-sm">Details</button>
+                <button class="bg-black text-white px-4 py-2 rounded-lg text-sm">Upgrade</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="mb-8">
+    
+    </section>
+
+    
+
+   </div>
     <script src="./homepagescript.js"></script>
     <script>
         // Toggle the new task form
-        document.getElementById('newTaskBtn').addEventListener('click', function() {
+        document.getElementById('newTaskBtn').addEventListener('click', function () {
             const form = document.querySelector('.new-task-form');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         });
     </script>
+
+    <script>
+        const body = document.querySelector('body'),
+      sidebar = body.querySelector('nav'),
+      searchBtn = body.querySelector(".search-box"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+
+modeSwitch.addEventListener("click" , () =>{
+    body.classList.toggle("dark");
+    
+    if(body.classList.contains("dark")){
+        modeText.innerText = "Light mode";
+    }else{
+        modeText.innerText = "Dark mode";
+        
+    }
+});
+    </script>
+    
 </body>
+
 </html>
