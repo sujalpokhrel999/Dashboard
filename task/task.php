@@ -12,6 +12,9 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
+//Handle date filteration
+$selected_date = isset($_POST['selected_date']) ? $_POST['selected_date'] : date('Y-m-d');
+
 // Handle task addition
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_task'])) {
     $task = $_POST['task'];
@@ -45,9 +48,15 @@ if ($query && mysqli_num_rows($query) > 0) {
     exit();
 }
 
-// Fetch tasks for the logged-in user
-$tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' ORDER BY created_at DESC";
+
+
+// Modify your query to filter tasks by the selected date
+$tasks_query = "SELECT * FROM tasks WHERE user_id = '$user_id' AND DATE(created_at) = '$selected_date'";
 $tasks_result = mysqli_query($conn, $tasks_query);
+
+
+
+
 
 // Handle task deletion
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_task'])) {
@@ -80,6 +89,23 @@ if (isset($_POST['logout'])) {
     header("Location: ../auth/login.php");
     exit();
 }
+// Handle status update via AJAX
+if (isset($_POST['update_status'])) {
+    $task_id = $_POST['task_id'];
+    $new_status = $_POST['status'];
+
+    // Update the task status in the database
+    $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $new_status, $task_id);
+
+    if ($stmt->execute()) {
+        echo "Status updated successfully";  // You can send a response back
+    } else {
+        echo "Error updating status: " . $stmt->error;
+    }
+    $stmt->close();
+    exit();
+}
 
 
 
@@ -91,12 +117,12 @@ if (isset($_POST['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Management UI</title>
+    <title>Tasks - EffortEase</title>
     <link rel="stylesheet" href="./task.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
-<body>
+<body class="dark">
 
     <div class="sidebar">
         <header>
@@ -130,11 +156,29 @@ if (isset($_POST['logout'])) {
                     </li>
                     <li class="nav-link">
                         <a href="../expenses/expenses.php">
-                            <i class='bx bx-bell icon'></i>
+                            <i class='bx bx-wallet icon'></i>
                             <span class="text nav-text">Expenses</span>
                         </a>
                     </li>
-                                  </ul>
+                    <li class="nav-link">
+                        <a href="../newIncome/newIncome.php">
+                            <i class='bx bx-money icon'></i>
+                            <span class="text nav-text">Income</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="../Income/income.php">
+                            <i class='bx bx-dollar icon'></i>
+                            <span class="text nav-text">Finanace</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="../report/report.php">
+                            <i class='bx bx-file icon'></i>
+                            <span class="text nav-text">Reports</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             <div class="bottom-content">
                 <li class="">
@@ -172,8 +216,7 @@ if (isset($_POST['logout'])) {
                 </h1>
             </div>
 
-            <div class="project-subtitle">The logo embodies a source of light that expands outward, symbolizing
-                intelligence, integrity and originality.</div>
+            <div class="project-subtitle">Organize, Prioritize, and Shine a Light on Your Path to Success with Intelligence and Integrity.</div>
 
             <div class="header-actions">
                 <div class="button-types">
@@ -198,18 +241,22 @@ if (isset($_POST['logout'])) {
 
         <div class="separator"></div>
 
-        <div class="board-section">
-            <!-- <div class="section-header">
-                <h2>Wireframe</h2>
-                <button class="add-column">+ Add column</button>
-            </div> -->
+        <div class="date-filter">
+    <form method="POST" class="filter-form">
+        <div class="date-field">
+            <label>Select Date</label>
+            <input type="date" name="selected_date" value="<?php echo isset($_POST['selected_date']) ? $_POST['selected_date'] : date('Y-m-d'); ?>">
+        </div>
+        <button type="submit" class="generate-button">Search</button>
+    </form>
+</div>
+
 
             <?php if (mysqli_num_rows($tasks_result) > 0): ?>
     <table class="board-table">
         <thead>
             <tr>
                 <th>Task</th>
-                <th>People</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th></th>
@@ -224,14 +271,13 @@ if (isset($_POST['logout'])) {
                     </div>
                 </td>
                 <td>
-                    <div class="avatar-group">
-                        <div class="avatar"></div>
-                        <div class="avatar"></div>
-                        <div class="avatar"></div>
-                    </div>
-                </td>
-                <td>
-                    <span class="status-badge status-ongoing" id="status-badge">Ongoing</span>
+                   <!-- Status is shown as a clickable span -->
+        <span class="status-badge status-<?php echo strtolower($task['status']); ?>" 
+              id="status-<?php echo $task['id']; ?>" 
+              data-task-id="<?php echo $task['id']; ?>"
+              data-status="<?php echo $task['status']; ?>">
+            <?php echo $task['status']; ?>
+        </span>
                 </td>
                 <td>
                     <?php echo $task['created_at']; ?>
@@ -243,7 +289,7 @@ if (isset($_POST['logout'])) {
                                 <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
                                 <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
                                 <button type="submit" name="delete_task" class="deleteBtn">
-                                    <img src="https://img.icons8.com/puffy/20/trash.png" alt="Delete Task">
+                                <img src="../assets/images/delete.png" alt="Delete Expenses" height="20px" width="20px" alt="Delete Task">
                                 </button>
                             </form>
                         </div>
@@ -270,9 +316,9 @@ if (isset($_POST['logout'])) {
                 <p class="subtitle">Fill in the details below to create your task.</p>
                 <div class="separator"></div>
                 <label class="input-label">Task Description *</label>
-                <input type="text" name="task" class="email-input"
-                    placeholder="E.g., Buy groceries, Complete project report...">
-                <button type="submit" name="add_task" class="reset-button">Add</button>
+                <input type="text" id="taskbtn" name="task" class="email-input"
+                    placeholder="E.g., Buy groceries, Complete project report..."required>
+                <button type="submit" id="addBtn" name="add_task" class="reset-button">Add</button>
             </form>
         </div>
     </div>
@@ -309,10 +355,27 @@ modeSwitch.addEventListener("click" , () =>{
     }
 });
 
-
-
-
     </script>
+    <script>
+       const taskInput = document.getElementById("taskBtn");
+const addBtn = document.getElementById("addBtn");
+
+// Correct way to disable/enable a button
+if (taskInput.value === "") {
+    addBtn.disabled = true;
+} else {
+    addBtn.disabled = false;
+}
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    if (taskInput.value.trim() === "") {
+        event.preventDefault(); // Prevent form submission if input is empty
+        addBtn.disabled = true;
+    }
+});
+    </script>
+
+
 </body>
 
 </html>

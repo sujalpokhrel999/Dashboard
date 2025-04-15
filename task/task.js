@@ -32,3 +32,40 @@ statusBadges.forEach(statusBadge => {
 window.onload = () => {
     setTimeout(closeToast, 10000);
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Get all the status spans
+    const statusElements = document.querySelectorAll('.status-badge');
+
+    statusElements.forEach(status => {
+        // Add a click event listener
+        status.addEventListener('click', function() {
+            const taskId = status.getAttribute('data-task-id');
+            const currentStatus = status.getAttribute('data-status');
+            const newStatus = currentStatus === 'Ongoing' ? 'Done' : 'Ongoing'; // Toggle status
+
+            // Send an AJAX request to update the status in the database
+            updateTaskStatus(taskId, newStatus, status);
+        });
+    });
+});
+
+function updateTaskStatus(taskId, newStatus, statusElement) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "task.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // On success, update the status in the UI and change the data-status attribute
+            statusElement.innerText = newStatus;
+            statusElement.setAttribute('data-status', newStatus);
+
+            // Optionally, change the class for styling
+            statusElement.className = `status-badge status-${newStatus.toLowerCase()}`;
+        }
+    };
+
+    // Sending taskId and newStatus in the request
+    xhr.send(`update_status=true&task_id=${taskId}&status=${newStatus}`);
+}

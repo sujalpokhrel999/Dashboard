@@ -3,7 +3,7 @@ include '../includes/connect.php';
 
 $message = "";
 $toastClass = "";
-
+$email="";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -32,7 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         $message = "Email not found";
-        $toastClass = "bg-warning";
+        $toastClass = "bg-danger";
+        $email="";
     }
 
     $stmt->close();
@@ -99,11 +100,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="login-inputs">
         <h1>Gratafy</h1>
         <form action="" method="post">
-            <input name="email" id="email" placeholder="Example@gmail.com" type="email" required />
+        <input name="email" id="email" placeholder="Example@gmail.com" type="email" required minlength="5" 
+  maxlength="50" 
+  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" value="<?php echo htmlspecialchars($email); ?>" />
           <div class="password"> <input name="password" id="password" placeholder="Password" type="password" id="password" required />
           <img src="../assets/images/view.png" alt="view-btn" class="view" id="view">
           </div>
-            <button type="submit">Log in 👉</button>
+            <button type="submit">Log in </button>
         </form>
         <div class="SignUp_Forgot">
         <a class="forget" href="./register.php">Sign Up</a>
@@ -119,13 +122,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const toast = document.getElementById('toast');
         if (toast) {
             toast.style.opacity = '0';
-            setTimeout(() => { toast.style.display = 'none'; }, 10000);
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
     }
 
     // Automatically close toast after 3 seconds
     window.onload = () => {
-        setTimeout(closeToast, 10000);
+        setTimeout(closeToast, 3000);
     };
 
 

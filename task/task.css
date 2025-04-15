@@ -110,10 +110,11 @@ body.dark{
 
 .logoutBtn:hover{
   background-color: var(--primary-color);
+  color: #FFF;
 }
 .logoutBtn:hover .icon,
 .logoutBtn:hover .text {
-  color: var(--sidebar-color);
+  color: #FFF;
 }
 /* =========================== */
 
@@ -653,4 +654,61 @@ body.dark .home .text{
   justify-content: center;
   align-items: center;
   padding-top: 60px;
+}
+
+.date-filter {
+  background-color: #f4f6f9;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  max-width: 300px;
+
+}
+
+.filter-form {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.date-field {
+  flex-grow: 1;
+}
+
+.date-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.date-field input[type="date"] {
+  width: 100%;
+  padding: 6px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.date-field input[type="date"]:focus {
+  outline: none;
+  border-color: #4a6cf7;
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+.generate-button {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
+  margin-top: 26px;
+}
+
+.generate-button:hover {
+  background-color: #3a5af3;
+  transform: translateY(-2px);
 }

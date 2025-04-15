@@ -227,10 +227,12 @@ body.dark .sidebar li a:hover .text{
 
 .logoutBtn:hover{
   background-color: var(--primary-color);
+  color: #FFF;
+
 }
 .logoutBtn:hover .icon,
 .logoutBtn:hover .text {
-  color: var(--sidebar-color);
+  color: #FFF;
 }
 
 .mode .sun-moon i{
@@ -783,4 +785,52 @@ select::-webkit-scrollbar-thumb:hover {
   color: #000000;
   text-align: center;
   white-space: nowrap;
+}
+
+.deleteIcon{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.deleteIcon img{
+  cursor: pointer;
+}
+
+.deleteBtn{
+  border:none;
+  outline:none;
+  background: transparent;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+canvas {
+  width: 100% !important;
+  height: 400px !important;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+      padding: 10px;
+  }
+  
+  canvas {
+      height: 300px !important;
+  }
 }

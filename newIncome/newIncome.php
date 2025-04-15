@@ -13,17 +13,17 @@ if (!isset($_SESSION['email'])) {
 
 // Handle expense addition
 // Handle expense addition
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_expense'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_income'])) {
     $description = $_POST['description'];
     $category = $_POST['category'];
     $amount = $_POST['amount'];
     $user_id = $_SESSION['user_id']; // Assuming the user ID is stored in the session
 
     // Using prepared statements to securely insert data
-    $stmt = $conn->prepare("INSERT INTO expenses (user_id, description, category, amount) VALUES (?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO income (user_id, category, amount) VALUES (?, ?, ?)");
 
     // Check if $amount should be 'i' or 'd' depending on its data type (integer or float)
-    $stmt->bind_param("issd", $user_id, $description, $category, $amount);
+    $stmt->bind_param("isd", $user_id,$category, $amount);
 
     if ($stmt->execute()) {
         // Redirect to the same page to avoid form resubmission
@@ -52,18 +52,18 @@ if ($query && mysqli_num_rows($query) > 0) {
 }
 
 // Handle expenses deletion
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_expenses'])) {
-    $expenses_id = $_POST['expenses_id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_income'])) {
+    $income_id = $_POST['income_id'];
     $user_id = $_POST['user_id'];
 
     // Prepare the SQL statement to delete the task
-    $stmt = $conn->prepare("DELETE FROM expenses WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ii", $expenses_id, $user_id);
+    $stmt = $conn->prepare("DELETE FROM income WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $income_id, $user_id);
 
     // Execute the statement
     if ($stmt->execute()) {
         // Redirect to the same page to avoid form resubmission
-        header("Location: expenses.php");
+        header("Location: newIncome.php");
         exit();
     } else {
         echo "Error deleting task: " . $conn->error;
@@ -73,13 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_expenses'])) {
 }
 
 // Fetch expenses for the logged-in user
-$expense_query = "SELECT * FROM expenses WHERE user_id = '$user_id' ORDER BY created_at DESC";
-$expense_result = mysqli_query($conn, $expense_query);
+$income_query = "SELECT * FROM income WHERE user_id = '$user_id' ORDER BY created_at DESC";
+$income_result = mysqli_query($conn, $income_query);
 
 
 // Fetch category totals for the graph
 $category_totals_query = "SELECT category, SUM(amount) as total 
-                         FROM expenses 
+                         FROM income 
                          WHERE user_id = '$user_id' 
                          GROUP BY category";
 $category_totals_result = mysqli_query($conn, $category_totals_query);
@@ -92,6 +92,7 @@ while ($row = mysqli_fetch_assoc($category_totals_result)) {
         'total' => floatval($row['total'])
     );
 }
+
 
 
 
@@ -116,8 +117,8 @@ if (isset($_POST['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expenses - EffortEase</title>
-    <link rel="stylesheet" href="./expenses.css">
+    <title>Income - EffortEase</title>
+    <link rel="stylesheet" href="./newIncome.css">
 
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -143,13 +144,13 @@ if (isset($_POST['logout'])) {
                 <ul class="menu-links">
                     <li class="nav-link">
                         <a href="../homepage/homepage.php">
-                            <i class='bx bx-home-alt icon'></i>
+                            <i class='bx bx-home-alt icon' ></i>
                             <span class="text nav-text">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-link">
                         <a href="../task/task.php">
-                            <i class='bx bx-bar-chart-alt-2 icon'></i>
+                            <i class='bx bx-bar-chart-alt-2 icon' ></i>
                             <span class="text nav-text">Tasks</span>
                         </a>
                     </li>
@@ -203,7 +204,7 @@ if (isset($_POST['logout'])) {
                         <span class="switch"></span>
                     </div>
                 </li>
-
+                
             </div>
         </div>
     </div>
@@ -212,15 +213,15 @@ if (isset($_POST['logout'])) {
         <div class="header">
             <div class="left">
             <div class="project-title">
-                <h1>Expense Tracker
+                <h1>Income Tracker
                 </h1>
             </div>
 
-            <div class="project-subtitle">Illuminate Your Financial Journey with Intelligence, Integrity, and Originality for a Brighter Tomorrow.</div>
+            <div class="project-subtitle">Track Your Income Effortlessly with Precision, Simplicity, and Reliability for a Prosperous Future.</div>
 
             <div class="header-actions">
                 <div class="button-types">
-                    <button onclick="openModal()" class="add-button">+ Add expenses</button>
+                    <button onclick="openModal()" class="add-button">+ Add Income</button>
                     <!-- Trigger button to open modal -->
 
                     <button class="more-button"><img
@@ -231,7 +232,7 @@ if (isset($_POST['logout'])) {
             </div>
             </div>
             <div class="right">
-                    <div class="bar-chart" id="expenseChart"></div>
+                    <div class="bar-chart" id="incomeChart"></div>
             </div>
         </div>
 
@@ -246,7 +247,6 @@ if (isset($_POST['logout'])) {
             <table class="board-table">
                 <thead>
                     <tr>
-                        <th>Description</th>
                         <th>Category</th>
                         <th>Date</th>
                         <th>Amount</th>
@@ -254,30 +254,26 @@ if (isset($_POST['logout'])) {
                     </tr>
                 </thead>
                 <tbody>
-                <?php if (mysqli_num_rows($expense_result) > 0): ?>
-                    <?php while ($expense = mysqli_fetch_assoc($expense_result)): ?>
+                <?php if (mysqli_num_rows($income_result) > 0): ?>
+                    <?php while ($income = mysqli_fetch_assoc($income_result)): ?>
                     <tr>
                     <tr>
+
+                        <td><span class="status-badge <?php echo htmlspecialchars($income['category']); ?> "><?php echo htmlspecialchars($income['category']); ?></span></td>
                         <td>
-                            <div class="folder">
-                            <?php echo htmlspecialchars($expense['description']); ?>
-                            </div>
-                        </td>
-                        <td><span class="status-badge <?php echo htmlspecialchars($expense['category']); ?> "><?php echo htmlspecialchars($expense['category']); ?></span></td>
-                        <td>
-                        <?php echo htmlspecialchars($expense['created_at']); ?>
+                        <?php echo htmlspecialchars($income['created_at']); ?>
                         </td>
                         <td>
-                        <?php echo htmlspecialchars($expense['amount']); ?>
+                        <?php echo htmlspecialchars($income['amount']); ?>
                         </td>
                         <td>
                         <div class="delete">
                         <div class="deleteIcon">
-                            <form method="POST" action="expenses.php">
-                                <input type="hidden" name="expenses_id" value="<?php echo $expense['id']; ?>">
+                            <form method="POST" action="newIncome.php">
+                                <input type="hidden" name="income_id" value="<?php echo $income['id']; ?>">
                                 <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                <button type="submit" name="delete_expenses" class="deleteBtn">
-                                    <img src="../assets/images/delete.png" alt="Delete Expenses" height="20px" width="20px" alt="Delete Expenses">
+                                <button type="submit" name="delete_income" class="deleteBtn">
+                                    <img src="../assets/images/delete.png" alt="Delete Income" height="20px" width="20px" alt="Delete Income">
                                 </button>
                             </form>
                         </div>
@@ -297,24 +293,21 @@ if (isset($_POST['logout'])) {
         <div class="modal">
             <form method="post" action="">
                 <button class="close-button" onclick="closeModal()">×</button>
-                <h1>Add New Expense</h1>
-                <p class="subtitle">Fill in the details below to create your expense.</p>
+                <h1>Add New Income</h1>
+                <p class="subtitle">Fill in the details below to create your income.</p>
                 <div class="separator"></div>
-                <label class="input-label">Expense Description *</label>
-                <input type="text" name="description" class="input"
-                    placeholder="E.g., Shankhamul-Sinamangal" required>
                     <label class="input-label">Category *</label>
                     <select id="category" name="category"  required>
-        <option value="Food">Food and Drinks</option>
-        <option value="Transportation">Transportation</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Utilities">Utilities</option>
+        <option value="Salary">Salary</option>
+        <option value="Investments">Investments</option>
+        <option value="Freelancing">Freelancing</option>
+        <option value="Other">Other</option>
         <!-- Add more categories as needed -->
     </select>
                     <label class="input-label">Amount *</label>
                 <input type="text" name="amount" class="input"
-                    placeholder="E.g., $20" required>
-                <button type="submit" name="add_expense" class="reset-button">Add</button>
+                    placeholder="E.g., $20">
+                <button type="submit" name="add_income" class="reset-button">Add</button>
             </form>
         </div>
     </div>
@@ -323,7 +316,7 @@ if (isset($_POST['logout'])) {
     // Make category data available to JavaScript
     const categoryData = <?php echo json_encode($category_data); ?>;
 </script>
-<script src="./expenses.js"></script> 
+<script src="./newIncome.js"></script> 
     <script>
         function openModal() {
             document.getElementById('modalOverlay').classList.add('show');
